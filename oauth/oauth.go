@@ -2,7 +2,7 @@ package oauth
 
 import (
 	"fmt"
-	"github.com/go-resty/resty"
+	"github.com/go-resty/resty/v2"
 	"github.com/nhatnhanchiha/bookstore_oauth-go/oauth/errors"
 	"net/http"
 	"strconv"
