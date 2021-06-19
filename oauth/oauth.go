@@ -3,7 +3,7 @@ package oauth
 import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
-	"github.com/nhatnhanchiha/bookstore_oauth-go/oauth/errors"
+	"github.com/nhatnhanchiha/bookstore_utils-go/rest_errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -67,7 +67,7 @@ func GetClientId(request *http.Request) int64 {
 	return clientId
 }
 
-func AuthenticateRequest(request *http.Request) *errors.RestErr {
+func AuthenticateRequest(request *http.Request) rest_errors.RestErr {
 	if request == nil {
 		return nil
 	}
@@ -82,7 +82,7 @@ func AuthenticateRequest(request *http.Request) *errors.RestErr {
 
 	at, err := getAccessToken(accessTokenId)
 	if err != nil {
-		if err.Status == http.StatusNotFound {
+		if err.Status() == http.StatusNotFound {
 			return nil
 		}
 		return err
@@ -103,15 +103,15 @@ func cleanRequest(request *http.Request) {
 	request.Header.Del(headerXCallerId)
 }
 
-func getAccessToken(accessTokenId string) (*accessToken, *errors.RestErr) {
+func getAccessToken(accessTokenId string) (*accessToken, rest_errors.RestErr) {
 	var at accessToken
 	response, err := client.R().SetResult(&at).Get(fmt.Sprintf("http://localhost:8080/oauth/access_token/%s", accessTokenId))
 	if err != nil {
-		return nil, errors.NewInternalServerError(err.Error())
+		return nil, rest_errors.NewInternalServerError(err.Error(), err)
 	}
 
 	if response == nil {
-		return nil, errors.NewInternalServerError("invalid response")
+		return nil, rest_errors.NewInternalServerError("invalid response", rest_errors.NewError("invalid_reponse"))
 	}
 
 	return &at, nil
